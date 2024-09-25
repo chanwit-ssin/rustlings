@@ -6,7 +6,7 @@
 
 use std::collections::HashMap;
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Progress {
     None,
     Some,
@@ -28,6 +28,15 @@ fn count_for(map: &HashMap<String, Progress>, value: Progress) -> usize {
 fn count_iterator(map: &HashMap<String, Progress>, value: Progress) -> usize {
     // `map` is a hash map with `String` keys and `Progress` values.
     // map = { "variables1": Complete, "from_str": None, … }
+
+    // map.iter().filter(|item| *item.1 == value).count()
+    map.iter().fold(0, |count, item| {
+        if *item.1 == value {
+            return count + 1;
+        }
+
+        count
+    })
 }
 
 fn count_collection_for(collection: &[HashMap<String, Progress>], value: Progress) -> usize {
@@ -48,10 +57,52 @@ fn count_collection_iterator(collection: &[HashMap<String, Progress>], value: Pr
     // `collection` is a slice of hash maps.
     // collection = [{ "variables1": Complete, "from_str": None, … },
     //               { "variables2": Complete, … }, … ]
+
+    // collection.iter().fold(0, |count, item| {
+    //     count + item.iter().fold(0, |count2, item2| {
+    //         if *item2.1 == value {
+    //             return count2 + 1;
+    //         }
+
+    //         count2
+    //     })
+    // })
+
+    // collection
+    //     .iter()
+    //     .map(|item| count_iterator(item, value))
+    //     .sum()
+
+    collection
+        .iter()
+        .flat_map(HashMap::values) // or just `.flatten()` when wanting the default iterator (`HashMap::iter`)
+        .filter(|val| **val == value)
+        .count()
 }
 
 fn main() {
     // You can optionally experiment here.
+
+    use Progress::*;
+
+    let mut map = HashMap::new();
+    map.insert(String::from("variables1"), Complete);
+    map.insert(String::from("functions1"), Complete);
+    map.insert(String::from("hashmap1"), Complete);
+    map.insert(String::from("arc1"), Some);
+    map.insert(String::from("as_ref_mut"), None);
+    map.insert(String::from("from_str"), None);
+
+    let mut other = HashMap::new();
+    other.insert(String::from("variables2"), Complete);
+    other.insert(String::from("functions2"), Complete);
+    other.insert(String::from("if1"), Complete);
+    other.insert(String::from("from_into"), None);
+    other.insert(String::from("try_from_into"), None);
+
+    let a = vec![map, other];
+
+    println!("{:?}", a.iter().flat_map(HashMap::values));
 }
 
 #[cfg(test)]

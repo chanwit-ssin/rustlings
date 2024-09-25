@@ -7,17 +7,19 @@ fn is_even(n: i64) -> bool {
 
 fn main() {
     // You can optionally experiment here.
+    println!("{}", is_even(-1));
 }
 
 #[cfg(test)]
 mod tests {
     // TODO: Import `is_even`. You can use a wildcard to import everything in
     // the outer module.
+    use super::is_even;
 
     #[test]
     fn you_can_assert() {
         // TODO: Test the function `is_even` with some values.
-        assert!();
-        assert!();
+        assert!(is_even(0));
+        assert!(!is_even(-1));
     }
 }
