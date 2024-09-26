@@ -28,14 +28,39 @@ enum IntoColorError {
 impl TryFrom<(i16, i16, i16)> for Color {
     type Error = IntoColorError;
 
-    fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {}
+    fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {
+        let (Ok(red), Ok(green), Ok(blue)) = (
+            u8::try_from(tuple.0),
+            u8::try_from(tuple.1),
+            u8::try_from(tuple.2),
+        ) else {
+            return Err(IntoColorError::IntConversion);
+        };
+
+        Ok(Self { red, green, blue })
+    }
 }
 
 // TODO: Array implementation.
 impl TryFrom<[i16; 3]> for Color {
     type Error = IntoColorError;
 
-    fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {}
+    fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {
+        if arr.len() != 3 {
+            return Err(IntoColorError::BadLen);
+        }
+
+        // let (Ok(red), Ok(green), Ok(blue)) = (
+        //     u8::try_from(arr[0]),
+        //     u8::try_from(arr[1]),
+        //     u8::try_from(arr[2]),
+        // ) else {
+        //     return Err(IntoColorError::IntConversion);
+        // };
+
+        // Ok(Self { red, green, blue })
+        Self::try_from((arr[0], arr[1], arr[2]))
+    }
 }
 
 // TODO: Slice implementation.
@@ -43,7 +68,22 @@ impl TryFrom<[i16; 3]> for Color {
 impl TryFrom<&[i16]> for Color {
     type Error = IntoColorError;
 
-    fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {}
+    fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {
+        if slice.len() != 3 {
+            return Err(IntoColorError::BadLen);
+        }
+
+        // let (Ok(red), Ok(green), Ok(blue)) = (
+        //     u8::try_from(slice[0]),
+        //     u8::try_from(slice[1]),
+        //     u8::try_from(slice[2]),
+        // ) else {
+        //     return Err(IntoColorError::IntConversion);
+        // };
+
+        // Ok(Self { red, green, blue })
+        Self::try_from((slice[0], slice[1], slice[2]))
+    }
 }
 
 fn main() {
@@ -55,7 +95,7 @@ fn main() {
     let c2: Result<Color, _> = [183, 65, 14].try_into();
     println!("{c2:?}");
 
-    let v = vec![183, 65, 14];
+    let v = vec! [-1, 255, 255];//[183, 65, 14];
     // With slice we should use the `try_from` function
     let c3 = Color::try_from(&v[..]);
     println!("{c3:?}");
